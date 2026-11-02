@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRKT — NFT Marketplace</title>
+    <title>MRKT — Digital Assets Marketplace</title>
     <!-- Подключаем TonConnect UI SDK -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
@@ -16,70 +16,105 @@
         body {
             background-color: #121212;
             color: #ffffff;
-            padding-bottom: 70px;
+            padding-bottom: 75px;
         }
-        /* Верхняя панель */
-        .header {
+        /* Верхняя плашка с кнопкой Connect */
+        .connect-header-wrap {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px 14px 4px 14px;
+            background: #181818;
+        }
+        .connect-top-btn {
+            background: #ffd300;
+            color: #000;
+            border: none;
+            padding: 7px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        /* Верхние категории-вкладки */
+        .top-categories {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px 12px 12px;
+            background: #181818;
+            overflow-x: auto;
+            align-items: center;
+        }
+        .cat-btn {
+            background: #232323;
+            border: none;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 13px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: #181818;
-            border-bottom: 1px solid #2a2a2a;
-            gap: 10px;
+            gap: 6px;
+            white-space: nowrap;
+            cursor: pointer;
         }
-        .search-bar {
+        .cat-btn.active {
+            background: #2b2b2b;
+            border: 1px solid #444;
+        }
+        .cat-icon-only {
+            background: #232323;
+            border: none;
+            color: #bbb;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        /* Поиск и Feed */
+        .search-row {
+            display: flex;
+            gap: 8px;
+            padding: 0 12px 12px 12px;
+            background: #181818;
+            align-items: center;
+        }
+        .search-box {
             flex: 1;
-            background: #252525;
+            background: #242424;
             border-radius: 10px;
             padding: 10px 14px;
             display: flex;
             align-items: center;
-            color: #888;
-            font-size: 14px;
-        }
-        .connect-btn {
-            background: #ffd300;
-            color: #000;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        /* Вкладки сверху */
-        .sub-nav {
-            display: flex;
             gap: 8px;
-            padding: 12px 16px;
-            overflow-x: auto;
-            background: #181818;
+            color: #777;
+            font-size: 13px;
         }
-        .sub-tab {
-            background: #252525;
+        .feed-btn {
+            background: #242424;
             border: none;
             color: #fff;
-            padding: 8px 14px;
-            border-radius: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
             font-size: 13px;
-            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
-        }
-        .sub-tab.active {
-            background: #333;
+            white-space: nowrap;
         }
         /* Фильтры */
         .filters {
             display: flex;
-            gap: 8px;
-            padding: 0 16px 12px 16px;
+            gap: 6px;
+            padding: 0 12px 12px 12px;
             overflow-x: auto;
+            background: #181818;
+            border-bottom: 1px solid #202020;
         }
-        .filter-chip {
-            background: #1e1e1e;
-            border: 1px solid #2d2d2d;
-            color: #ccc;
+        .filter-pill {
+            background: #202020;
+            border: 1px solid #2c2c2c;
+            color: #bbb;
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 12px;
@@ -89,12 +124,12 @@
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 0 16px;
+            gap: 10px;
+            padding: 12px;
         }
         .item-card {
             background: #1a1a1a;
-            border-radius: 14px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid #262626;
             display: flex;
@@ -102,57 +137,89 @@
             position: relative;
             cursor: pointer;
         }
-        .item-img-box {
-            height: 140px;
+        .item-img-container {
+            height: 155px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            overflow: hidden;
         }
-        .item-img-box img {
+        .item-img-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
-        .item-info {
-            padding: 12px;
+        /* Плашки свойств на картинке */
+        .card-badges {
+            position: absolute;
+            top: 6px;
+            right: 6px;
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
-        .item-title {
-            font-size: 14px;
-            font-weight: 600;
+        .badge-mini {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            border-radius: 6px;
+            padding: 3px 6px;
+            font-size: 11px;
         }
-        .item-id {
-            font-size: 12px;
-            color: #888;
+        .item-details {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: #181818;
         }
-        .item-footer {
+        .item-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #fff;
+        }
+        .item-hash {
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+        .price-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 8px;
+            background: #222222;
+            padding: 6px 10px;
+            border-radius: 8px;
+            margin-top: 4px;
         }
-        .price {
-            font-size: 14px;
+        .price-val {
+            font-size: 13px;
             font-weight: 700;
             color: #fff;
             display: flex;
             align-items: center;
             gap: 4px;
         }
-        .buy-icon-btn {
-            background: #262626;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+        .cart-icon {
+            color: #888;
+            font-size: 14px;
+        }
+        /* Кнопка купить оптом */
+        .bulk-buy-container {
+            padding: 0 12px 10px 12px;
+        }
+        .bulk-btn {
+            width: 100%;
+            background: #252525;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 11px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #fff;
+            gap: 8px;
             cursor: pointer;
         }
         /* Нижняя навигация */
@@ -162,136 +229,156 @@
             left: 0;
             right: 0;
             background: #181818;
-            border-top: 1px solid #282828;
+            border-top: 1px solid #222;
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
+            padding: 8px 0;
             z-index: 100;
         }
-        .nav-item {
+        .nav-link {
             display: flex;
             flex-direction: column;
             align-items: center;
             color: #777;
-            font-size: 11px;
-            gap: 4px;
+            font-size: 10px;
+            gap: 3px;
             text-decoration: none;
-            cursor: pointer;
         }
-        .nav-item.active {
-            color: #ffaa00;
+        .nav-link.active {
+            color: #ffa500;
         }
-        .nav-item span:first-child {
-            font-size: 18px;
+        .nav-link span:first-child {
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Верхняя строка поиска и кнопка -->
-    <div class="header">
-        <div class="search-bar">🔍 Поиск по названию NFT</div>
-        <button id="connect-wallet-btn" class="connect-btn">Connect</button>
+    <!-- Верхняя кнопка подключения -->
+    <div class="connect-header-wrap">
+        <button id="connect-wallet-btn" class="connect-top-btn">Connect</button>
     </div>
 
-    <!-- Вкладки категорий -->
-    <div class="sub-nav">
-        <button class="sub-tab active">🎁 Подарки</button>
-        <button class="sub-tab">🎯 Спец</button>
-        <button class="sub-tab">⭐ Редкие</button>
-        <button class="sub-tab">🛡️ Кейсы</button>
+    <!-- Верхние категории -->
+    <div class="top-categories">
+        <button class="cat-btn active">🎁 Подарки</button>
+        <button class="cat-btn">🪖</button>
+        <button class="cat-btn">⭐</button>
+        <button class="cat-btn">🛡️</button>
+        <button class="cat-btn">💬</button>
+        <button class="cat-icon-only">🛒</button>
+    </div>
+
+    <!-- Поиск и Feed -->
+    <div class="search-row">
+        <div class="search-box">
+            <span>🔍</span> Поиск по названию NFT
+        </div>
+        <button class="feed-btn">📋 Feed</button>
     </div>
 
     <!-- Фильтры -->
     <div class="filters">
-        <div class="filter-chip">⚡ NFT ▾</div>
-        <div class="filter-chip">🎨 Модель ▾</div>
-        <div class="filter-chip">🌌 Фон ▾</div>
-        <div class="filter-chip">💎 Свойства ▾</div>
+        <div class="filter-pill">⚡ NFT ▾</div>
+        <div class="filter-pill">🎨 Модель ▾</div>
+        <div class="filter-pill">🌌 Фон ▾</div>
+        <div class="filter-pill">💎 Свойства ▾</div>
     </div>
 
-    <!-- Сетка NFT -->
+    <!-- Сетка товаров -->
     <div class="grid">
         <!-- Карточка 1 -->
         <div class="item-card buy-btn">
-            <div class="item-img-box" style="background: #2b4560;">
+            <div class="item-img-container" style="background: #364860;">
                 <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&auto=format&fit=crop&q=60" alt="Pool Float">
             </div>
-            <div class="item-info">
-                <div class="item-title">Pool Float</div>
-                <div class="item-id">#162015</div>
-                <div class="item-footer">
-                    <div class="price">💎 4.19</div>
-                    <button class="buy-icon-btn">🛒</button>
+            <div class="item-details">
+                <div class="item-name">Pool Float</div>
+                <div class="item-hash">#162015</div>
+                <div class="price-row">
+                    <div class="price-val">💎 4.19</div>
+                    <div class="cart-icon">🛒</div>
                 </div>
             </div>
         </div>
 
         <!-- Карточка 2 -->
         <div class="item-card buy-btn">
-            <div class="item-img-box" style="background: #5c3a32;">
+            <div class="item-img-container" style="background: #603d36;">
                 <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=300&auto=format&fit=crop&q=60" alt="Pool Float">
             </div>
-            <div class="item-info">
-                <div class="item-title">Pool Float</div>
-                <div class="item-id">#224944</div>
-                <div class="item-footer">
-                    <div class="price">💎 3.94</div>
-                    <button class="buy-icon-btn">🛒</button>
+            <div class="item-details">
+                <div class="item-name">Pool Float</div>
+                <div class="item-hash">#224944</div>
+                <div class="price-row">
+                    <div class="price-val">💎 3.94</div>
+                    <div class="cart-icon">🛒</div>
                 </div>
             </div>
         </div>
 
         <!-- Карточка 3 -->
         <div class="item-card buy-btn">
-            <div class="item-img-box" style="background: #36294a;">
+            <div class="item-img-container" style="background: #39294a;">
+                <div class="card-badges">
+                    <div class="badge-mini">🍀</div>
+                    <div class="badge-mini">🔟</div>
+                </div>
                 <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=300&auto=format&fit=crop&q=60" alt="Happy Brownie">
             </div>
-            <div class="item-info">
-                <div class="item-title">Happy Brownie</div>
-                <div class="item-id">#105302</div>
-                <div class="item-footer">
-                    <div class="price">💎 12.5</div>
-                    <button class="buy-icon-btn">🛒</button>
+            <div class="item-details">
+                <div class="item-name">Happy Brownie</div>
+                <div class="item-hash">#105302</div>
+                <div class="price-row">
+                    <div class="price-val">💎 12.5</div>
+                    <div class="cart-icon">🛒</div>
                 </div>
             </div>
         </div>
 
         <!-- Карточка 4 -->
         <div class="item-card buy-btn">
-            <div class="item-img-box" style="background: #543344;">
+            <div class="item-img-container" style="background: #523444;">
+                <div class="card-badges">
+                    <div class="badge-mini">🍀</div>
+                </div>
                 <img src="https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=300&auto=format&fit=crop&q=60" alt="Cupid Charm">
             </div>
-            <div class="item-info">
-                <div class="item-title">Cupid Charm</div>
-                <div class="item-id">#3179</div>
-                <div class="item-footer">
-                    <div class="price">💎 24.11</div>
-                    <button class="buy-icon-btn">🛒</button>
+            <div class="item-details">
+                <div class="item-name">Cupid Charm</div>
+                <div class="item-hash">#3179</div>
+                <div class="price-row">
+                    <div class="price-val">💎 24.11</div>
+                    <div class="cart-icon">🛒</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Нижняя панель навигации -->
+    <!-- Кнопка купить оптом -->
+    <div class="bulk-buy-container">
+        <button class="bulk-btn">🛒 Купить оптом</button>
+    </div>
+
+    <!-- Нижняя навигация -->
     <div class="nav-bar">
-        <a class="nav-item active">
+        <a class="nav-link active">
             <span>🎛️</span>
             Маркет
         </a>
-        <a class="nav-item">
+        <a class="nav-link">
             <span>📄</span>
             Ордеры
         </a>
-        <a class="nav-item">
+        <a class="nav-link">
             <span>🎮</span>
             Игровой хаб
         </a>
-        <a class="nav-item" style="color: #ff9900;">
+        <a class="nav-link" style="color: #ff9900;">
             <span>🎃</span>
             Halloween
         </a>
-        <a class="nav-item">
+        <a class="nav-link">
             <span>📦</span>
             Хранилище
         </a>
