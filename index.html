@@ -3,120 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NFT Marketplace</title>
-    <!-- Подключаем Tailwind CSS для быстрого и красивого дизайна -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        tgBg: '#181818',
-                        tgCard: '#212121',
-                        tgButton: '#2ea6ff',
-                        tgText: '#ffffff',
-                        tgHint: '#aaaaaa'
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-tgBg text-tgText font-sans select-none pb-20">
-
-    <!-- Верхняя панель (Шапка) -->
-    <header class="flex justify-between items-center p-4 border-b border-zinc-800 sticky top-0 bg-tgBg/90 backdrop-blur z-10">
-        <div class="flex items-center space-x-2">
-            <span class="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-1 rounded-full font-medium">ЕП</span>
-            <div class="flex items-center space-x-1 text-sm font-semibold">
-                <span>💎</span>
-                <span id="user-balance">0.00</span>
-            </div>
-        </div>
-        <!-- Кнопка подключения кошелька -->
-        <button id="connect-wallet-btn" class="bg-tgButton hover:bg-sky-500 text-white text-sm font-medium px-4 py-1.5 rounded-xl transition">
-            Connect Wallet
-        </button>
-    </header>
-
-    <!-- Основной контент (Маркет) -->
-    <main class="p-4">
-        <!-- Баннер -->
-        <div class="bg-gradient-to-r from-blue-600/30 to-purple-600/30 border border-blue-500/30 rounded-2xl p-4 mb-4">
-            <h2 class="font-bold text-base mb-1">Myth mask улучшена</h2>
-            <p class="text-xs text-tgHint mb-3">Торги запущены. Успей забрать редкие активы.</p>
-            <button class="bg-white text-black text-xs font-bold px-3 py-1.5 rounded-lg">Вперед!</button>
-        </div>
-
-        <!-- Поиск -->
-        <div class="mb-4">
-            <input type="text" placeholder="Поиск по названию NFT / нс" class="w-full bg-tgCard text-sm text-white px-4 py-2.5 rounded-xl outline-none border border-zinc-800 focus:border-tgButton transition">
-        </div>
-
-        <!-- Сетка товаров (Карточки NFT) -->
-        <div class="grid grid-cols-2 gap-3">
-            <!-- Товар 1 -->
-            <div class="bg-tgCard border border-zinc-800 rounded-2xl p-3 flex flex-col justify-between item-card" data-item="Myth Mask #150403">
-                <div>
-                    <div class="bg-zinc-800/50 rounded-xl h-36 flex items-center justify-center mb-3 text-3xl">
-                        🦋
-                    </div>
-                    <h3 class="font-semibold text-sm truncate">Myth Mask</h3>
-                    <p class="text-xs text-tgHint">#150403</p>
-                </div>
-                <div class="flex items-center justify-between mt-3 pt-2 border-t border-zinc-800/60">
-                    <span class="text-xs font-bold">💎 11.22</span>
-                    <button class="buy-btn bg-zinc-800 hover:bg-tgButton hover:text-white p-2 rounded-xl transition">
-                        🛒
-                    </button>
-                </div>
-            </div>
-
-            <!-- Товар 2 -->
-            <div class="bg-tgCard border border-zinc-800 rounded-2xl p-3 flex flex-col justify-between item-card" data-item="Swag Bag #210929">
-                <div>
-                    <div class="bg-zinc-800/50 rounded-xl h-36 flex items-center justify-center mb-3 text-3xl">
-                        💰
-                    </div>
-                    <h3 class="font-semibold text-sm truncate">Swag Bag</h3>
-                    <p class="text-xs text-tgHint">#210929</p>
-                </div>
-                <div class="flex items-center justify-between mt-3 pt-2 border-t border-zinc-800/60">
-                    <span class="text-xs font-bold">💎 6.53</span>
-                    <button class="buy-btn bg-zinc-800 hover:bg-tgButton hover:text-white p-2 rounded-xl transition">
-                        🛒
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Нижняя навигация (Меню) -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-tgCard/95 backdrop-blur border-t border-zinc-800 flex justify-around py-3 text-xs text-tgHint z-10">
-        <button class="flex flex-col items-center text-tgButton">
-            <span class="text-lg">🛍️</span>
-            <span>Маркет</span>
-        </button>
-        <button class="flex flex-col items-center hover:text-white transition">
-            <span class="text-lg">📑</span>
-            <span>Ордеры</span>
-        </button>
-        <button class="flex flex-col items-center hover:text-white transition">
-            <span class="text-lg">🎮</span>
-            <span>Игровой хаб</span>
-        </button>
-        <button class="flex flex-col items-center hover:text-white transition">
-            <span class="text-lg">🎃</span>
-            <span>Halloween</span>
-        </button>
-        <button class="flex flex-col items-center hover:text-white transition">
-            <span class="text-lg">📦</span>
-            <span>Хранилище</span>
-        </button>
-    </nav>
-
-    <!-- Подключаем скрипт TonConnect UI -->
+    <title>MRKT — NFT Marketplace</title>
+    <!-- Подключаем TonConnect UI SDK -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            padding-bottom: 70px;
+        }
+        /* Верхняя панель */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: #181818;
+            border-bottom: 1px solid #2a2a2a;
+            gap: 10px;
+        }
+        .search-bar {
+            flex: 1;
+            background: #252525;
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            color: #888;
+            font-size: 14px;
+        }
+        .connect-btn {
+            background: #ffd300;
+            color: #000;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        /* Вкладки сверху */
+        .sub-nav {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+            background: #181818;
+        }
+        .sub-tab {
+            background: #252525;
+            border: none;
+            color: #fff;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .sub-tab.active {
+            background: #333;
+        }
+        /* Фильтры */
+        .filters {
+            display: flex;
+            gap: 8px;
+            padding: 0 16px 12px 16px;
+            overflow-x: auto;
+        }
+        .filter-chip {
+            background: #1e1e1e;
+            border: 1px solid #2d2d2d;
+            color: #ccc;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        /* Сетка товаров */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 0 16px;
+        }
+        .item-card {
+            background: #1a1a1a;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid #262626;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            cursor: pointer;
+        }
+        .item-img-box {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .item-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .item-info {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .item-title {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .item-id {
+            font-size: 12px;
+            color: #888;
+        }
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .price {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .buy-icon-btn {
+            background: #262626;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            cursor: pointer;
+        }
+        /* Нижняя навигация */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #181818;
+            border-top: 1px solid #282828;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #777;
+            font-size: 11px;
+            gap: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            color: #ffaa00;
+        }
+        .nav-item span:first-child {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Верхняя строка поиска и кнопка -->
+    <div class="header">
+        <div class="search-bar">🔍 Поиск по названию NFT</div>
+        <button id="connect-wallet-btn" class="connect-btn">Connect</button>
+    </div>
+
+    <!-- Вкладки категорий -->
+    <div class="sub-nav">
+        <button class="sub-tab active">🎁 Подарки</button>
+        <button class="sub-tab">🎯 Спец</button>
+        <button class="sub-tab">⭐ Редкие</button>
+        <button class="sub-tab">🛡️ Кейсы</button>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="filters">
+        <div class="filter-chip">⚡ NFT ▾</div>
+        <div class="filter-chip">🎨 Модель ▾</div>
+        <div class="filter-chip">🌌 Фон ▾</div>
+        <div class="filter-chip">💎 Свойства ▾</div>
+    </div>
+
+    <!-- Сетка NFT -->
+    <div class="grid">
+        <!-- Карточка 1 -->
+        <div class="item-card buy-btn">
+            <div class="item-img-box" style="background: #2b4560;">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=300&auto=format&fit=crop&q=60" alt="Pool Float">
+            </div>
+            <div class="item-info">
+                <div class="item-title">Pool Float</div>
+                <div class="item-id">#162015</div>
+                <div class="item-footer">
+                    <div class="price">💎 4.19</div>
+                    <button class="buy-icon-btn">🛒</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 2 -->
+        <div class="item-card buy-btn">
+            <div class="item-img-box" style="background: #5c3a32;">
+                <img src="https://images.unsplash.com/photo-1634017839464-5c339ebe3cb4?w=300&auto=format&fit=crop&q=60" alt="Pool Float">
+            </div>
+            <div class="item-info">
+                <div class="item-title">Pool Float</div>
+                <div class="item-id">#224944</div>
+                <div class="item-footer">
+                    <div class="price">💎 3.94</div>
+                    <button class="buy-icon-btn">🛒</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 3 -->
+        <div class="item-card buy-btn">
+            <div class="item-img-box" style="background: #36294a;">
+                <img src="https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=300&auto=format&fit=crop&q=60" alt="Happy Brownie">
+            </div>
+            <div class="item-info">
+                <div class="item-title">Happy Brownie</div>
+                <div class="item-id">#105302</div>
+                <div class="item-footer">
+                    <div class="price">💎 12.5</div>
+                    <button class="buy-icon-btn">🛒</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Карточка 4 -->
+        <div class="item-card buy-btn">
+            <div class="item-img-box" style="background: #543344;">
+                <img src="https://images.unsplash.com/photo-1618172193763-c511deb635ca?w=300&auto=format&fit=crop&q=60" alt="Cupid Charm">
+            </div>
+            <div class="item-info">
+                <div class="item-title">Cupid Charm</div>
+                <div class="item-id">#3179</div>
+                <div class="item-footer">
+                    <div class="price">💎 24.11</div>
+                    <button class="buy-icon-btn">🛒</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Нижняя панель навигации -->
+    <div class="nav-bar">
+        <a class="nav-item active">
+            <span>🎛️</span>
+            Маркет
+        </a>
+        <a class="nav-item">
+            <span>📄</span>
+            Ордеры
+        </a>
+        <a class="nav-item">
+            <span>🎮</span>
+            Игровой хаб
+        </a>
+        <a class="nav-item" style="color: #ff9900;">
+            <span>🎃</span>
+            Halloween
+        </a>
+        <a class="nav-item">
+            <span>📦</span>
+            Хранилище
+        </a>
+    </div>
+
+    <!-- Подключаем логику -->
     <script src="app.js"></script>
 </body>
 </html>
