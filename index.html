@@ -2,443 +2,137 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MRKT — NFT Marketplace</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Marketplace Mini App</title>
+    
+    <!-- Подключаем Telegram Web App JS API -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключаем TonConnect UI -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        /* === СТИЛИ ДЛЯ АВТОРИЗАЦИИ И БЛОКИРОВКИ === */
         body {
-            background-color: #121212;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f0f11;
             color: #ffffff;
-            padding-bottom: 75px;
-            -webkit-font-smoothing: antialiased;
         }
-        .header-top {
-            display: flex;
-            justify-content: flex-end;
-            padding: 12px 16px 4px 16px;
-            background: #181818;
-        }
-        .connect-btn {
-            background: #ffd300;
-            color: #000;
-            border: none;
-            padding: 8px 18px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .categories-row {
-            display: flex;
-            gap: 8px;
-            padding: 8px 16px 12px 16px;
-            background: #181818;
-            overflow-x: auto;
-            align-items: center;
-        }
-        .categories-row::-webkit-scrollbar {
-            display: none;
-        }
-        .cat-chip {
-            background: #232323;
-            border: 1px solid #2a2a2a;
-            color: #fff;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            cursor: pointer;
-        }
-        .cat-chip.active {
-            background: #2c2c2c;
-            border-color: #444;
-        }
-        .cat-icon-btn {
-            background: #232323;
-            border: 1px solid #2a2a2a;
-            color: #bbb;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .search-container {
-            display: flex;
-            gap: 8px;
-            padding: 0 16px 12px 16px;
-            background: #181818;
-            align-items: center;
-        }
-        .search-input-box {
-            flex: 1;
-            background: #242424;
-            border-radius: 10px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #777;
-            font-size: 13px;
-        }
-        .feed-action-btn {
-            background: #242424;
-            border: 1px solid #2c2c2c;
-            color: #fff;
-            padding: 10px 14px;
-            border-radius: 10px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        .filters-row {
-            display: flex;
-            gap: 8px;
-            padding: 0 16px 14px 16px;
-            overflow-x: auto;
-            background: #181818;
-            border-bottom: 1px solid #202020;
-        }
-        .filters-row::-webkit-scrollbar {
-            display: none;
-        }
-        .filter-item {
-            background: #1e1e1e;
-            border: 1px solid #2b2b2b;
-            color: #ccc;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            white-space: nowrap;
-        }
-        .nft-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            padding: 16px;
-        }
-        .nft-card {
-            background: #1a1a1a;
-            border-radius: 14px;
-            overflow: hidden;
-            border: 1px solid #262626;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            cursor: pointer;
-        }
-        .nft-img-wrap {
-            height: 160px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding: 12px;
-        }
-        .nft-img-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.3));
-        }
-        .nft-badges {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            z-index: 2;
-        }
-        .badge-tag {
-            background: rgba(30, 30, 30, 0.65);
-            backdrop-filter: blur(6px);
-            border-radius: 6px;
-            padding: 4px 6px;
-            font-size: 11px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .nft-info {
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            background: #181818;
-        }
-        .nft-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #fff;
-        }
-        .nft-id {
-            font-size: 12px;
-            color: #777;
-            margin-bottom: 6px;
-        }
-        .nft-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #212121;
-            padding: 8px 10px;
-            border-radius: 8px;
-        }
-        .nft-price {
-            font-size: 14px;
-            font-weight: 700;
-            color: #fff;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .nft-cart-icon {
-            color: #888;
-            font-size: 15px;
-        }
-        .bulk-section {
-            padding: 0 16px 16px 16px;
-        }
-        .bulk-action-btn {
-            width: 100%;
-            background: #222;
-            border: 1px solid #333;
-            color: #fff;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        .bottom-nav {
+
+        /* Фиксированный фон на весь экран */
+        .auth-overlay {
             position: fixed;
-            bottom: 0;
+            top: 0;
             left: 0;
-            right: 0;
-            background: #181818;
-            border-top: 1px solid #222;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
             display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            z-index: 100;
-        }
-        .nav-tab {
-            display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            color: #777;
-            font-size: 10px;
-            gap: 3px;
-            text-decoration: none;
-            cursor: pointer;
+            z-index: 99999;
+            pointer-events: auto;
         }
-        .nav-tab.active {
-            color: #ffa500;
+
+        /* Карточка авторизации */
+        .auth-card {
+            background: #1c1c1e;
+            color: #ffffff;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 320px;
+            width: 90%;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
-        .nav-tab span:first-child {
-            font-size: 18px;
+
+        .auth-card h2 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        .auth-card p {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        /* Блокировка скролла при открытом окне */
+        body.auth-locked {
+            overflow: hidden !important;
+            touch-action: none;
+        }
+
+        /* Основной контент приложения */
+        .app-container {
+            padding: 16px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header-top">
-        <button id="connect-wallet-btn" class="connect-btn">Connect</button>
-    </div>
-
-    <div class="categories-row">
-        <button class="cat-chip active">🎁 Подарки</button>
-        <button class="cat-chip">🪖 Спец</button>
-        <button class="cat-chip">⭐ Редкие</button>
-        <button class="cat-chip">🛡️ Кейсы</button>
-        <button class="cat-chip">💬 Чат</button>
-        <button class="cat-icon-btn">🛒</button>
-    </div>
-
-    <div class="search-container">
-        <div class="search-input-box">
-            <span>🔍</span> Поиск по названию NFT
-        </div>
-        <button class="feed-action-btn">📋 Feed</button>
-    </div>
-
-    <div class="filters-row">
-        <div class="filter-item">⚡ NFT ▾</div>
-        <div class="filter-item">🎨 Модель ▾</div>
-        <div class="filter-item">🌌 Фон ▾</div>
-        <div class="filter-item">💎 Свойства ▾</div>
-    </div>
-
-    <!-- Полный каталог всех основных позиций маркетплейса -->
-    <div class="nft-grid">
-        <!-- 1 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #5b8ba3 0%, #3a5c6e 100%);">
-                <img src="https://nft.fragment.com/gift/pool-float.webp" alt="Pool Float">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Pool Float</div>
-                <div class="nft-id">#162015</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 4.19</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #a8624d 0%, #6e3a2c 100%);">
-                <img src="https://nft.fragment.com/gift/pool-float.webp" alt="Pool Float">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Pool Float</div>
-                <div class="nft-id">#224944</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 3.94</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #685ba3 0%, #40366e 100%);">
-                <div class="nft-badges"><div class="badge-tag">🍀</div><div class="badge-tag">🔟</div></div>
-                <img src="https://nft.fragment.com/gift/happy-brownie.webp" alt="Happy Brownie">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Happy Brownie</div>
-                <div class="nft-id">#105302</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 12.5</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #a37c5b 0%, #6e503a 100%);">
-                <div class="nft-badges"><div class="badge-tag">🍀</div></div>
-                <img src="https://nft.fragment.com/gift/cupid-charm.webp" alt="Cupid Charm">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Cupid Charm</div>
-                <div class="nft-id">#3179</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 24.11</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #3d526e 0%, #223447 100%);">
-                <div class="nft-badges"><div class="badge-tag">⭐</div></div>
-                <img src="https://nft.fragment.com/gift/elixir-of-life.webp" alt="Elixir of Life">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Elixir of Life</div>
-                <div class="nft-id">#48192</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 18.0</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #6e3d5c 0%, #47223b 100%);">
-                <div class="nft-badges"><div class="badge-tag">💎</div></div>
-                <img src="https://nft.fragment.com/gift/perfume-bottle.webp" alt="Perfume Bottle">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Perfume Bottle</div>
-                <div class="nft-id">#89312</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 7.85</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 7 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #3d6e50…); background: radial-gradient(circle, #436e3d 0%, #294722 100%);">
-                <div class="nft-badges"><div class="badge-tag">🔥</div></div>
-                <img src="https://nft.fragment.com/gift/magic-potion.webp" alt="Magic Potion">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Magic Potion</div>
-                <div class="nft-id">#12044</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 15.2</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 8 -->
-        <div class="nft-card buy-btn">
-            <div class="nft-img-wrap" style="background: radial-gradient(circle, #6e653d 0%, #474222 100%);">
-                <div class="nft-badges"><div class="badge-tag">👑</div></div>
-                <img src="https://nft.fragment.com/gift/spooky-ghost.webp" alt="Spooky Ghost">
-            </div>
-            <div class="nft-info">
-                <div class="nft-title">Spooky Ghost</div>
-                <div class="nft-id">#509</div>
-                <div class="nft-footer">
-                    <div class="nft-price">💎 45.0</div>
-                    <div class="nft-cart-icon">🛒</div>
-                </div>
-            </div>
+    <!-- Оверлей авторизации (блокирует интерфейс, пока кошелек не подключен) -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-card">
+            <h2>Добро пожаловать</h2>
+            <p>Для доступа к приложению необходимо подключить ваш TON кошелек.</p>
+            <!-- Контейнер для кнопки TonConnect -->
+            <div id="ton-connect-button"></div>
         </div>
     </div>
 
-    <div class="bulk-section">
-        <button class="bulk-action-btn">🛒 Купить оптом</button>
+    <!-- Основной контент вашего Mini App -->
+    <div class="app-container">
+        <h1>NFT Marketplace</h1>
+        <p>Здесь находится защищенный контент приложения, доступный только после авторизации.</p>
     </div>
 
-    <div class="bottom-nav">
-        <a class="nav-tab active">
-            <span>🎛️</span>
-            Маркет
-        </a>
-        <a class="nav-tab">
-            <span>📄</span>
-            Ордеры
-        </a>
-        <a class="nav-tab">
-            <span>🎮</span>
-            Игровой хаб
-        </a>
-        <a class="nav-tab" style="color: #ff9900;">
-            <span>🎃</span>
-            Halloween
-        </a>
-        <a class="nav-tab">
-            <span>📦</span>
-            Хранилище
-        </a>
-    </div>
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand();
 
-    <script src="app.js"></script>
+        // Инициализация TonConnect UI с вашим реальным доменом
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://mrktmarket.github.io/mrkt/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
+
+        const authModal = document.getElementById('auth-modal');
+
+        // Функция блокировки/разблокировки интерфейса
+        function setAuthLock(isLocked) {
+            if (isLocked) {
+                authModal.style.display = 'flex';
+                document.body.classList.add('auth-locked');
+                if (tg.BackButton) tg.BackButton.hide();
+            } else {
+                authModal.style.display = 'none';
+                document.body.classList.remove('auth-locked');
+                if (tg.BackButton) tg.BackButton.show();
+            }
+        }
+
+        // Проверка состояния кошелька при загрузке и изменении статуса
+        tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) {
+                // Кошелек подключен — скрываем оверлей и открываем доступ
+                setAuthLock(false);
+                console.log('Пользователь авторизован:', wallet.account.address);
+            } else {
+                // Кошелек не подключен — блокируем доступ
+                setAuthLock(true);
+            }
+        });
+
+        // Защита от закрытия по клику
+        authModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    </script>
 </body>
 </html>
